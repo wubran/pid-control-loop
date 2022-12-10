@@ -30,15 +30,39 @@ document.addEventListener('keydown', (event) => {
 
 function onClick(event){
     click = true;
+    dragStartX = event.pageX;
+    dragStartY = event.pageY;
+    if((dragStartX-encoderX)*(dragStartX-encoderX)+(dragStartY-encoderY)*(dragStartY-encoderY) < (1.1*encoderR)*(1.1*encoderR)){
+        interacting = 1;
+    }
 }
 
 function onRelease(event){
     click = false;
+    interacting = 0;
 }
 
 function onMouseMove(event){
     mouseX = event.pageX;
     mouseY = event.pageY;
+    if(click){
+        switch(interacting){
+            case 1:
+                // let magDivRadius = (event.movementY*event.movementY+event.movementX*event.movementX)/(event.movementY*(mouseX-encoderX) - event.movementX*(mouseY-encoderY))
+                // console.log(magDivRadius,event.movementY*(mouseX-encoderX),event.movementX*(mouseY-encoderY))
+                // if(isNaN(magDivRadius)){
+                //     return;
+                // }
+                // theta-=magDivRadius;
+                let radMag = (event.movementY*(mouseX-encoderX) - event.movementX*(mouseY-encoderY))
+                console.log(radMag)
+                theta-=0.0005*radMag;
+                return;
+            case 0:
+                return;
+
+        }
+    }
 }
 
 function onMouseLeave(event){

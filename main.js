@@ -7,6 +7,9 @@ items = []
 var click = false
 var mouseX = 0;
 var mouseY = 0;
+var dragStartX = 0;
+var dragStartY = 0;
+var interacting = 0; // 1 is encoder
 var pause = false;
 
 const encoderX = 170;
@@ -73,8 +76,10 @@ function doCalcs(){
 }
 
 function update(){
-    omega += alpha;
-    theta += omega;
+    if(interacting!=1){
+        omega += alpha;
+        theta += omega;
+    }
     thetaHistory.push(theta);
     senseThetaHistory.push(senseTheta);
     sensor1history.push(sensor1val);
@@ -96,7 +101,7 @@ function drawEncoder(){
     for(let i=0; i<encoderTicks; i++){
         ctx.beginPath();
         ctx.moveTo(encoderX,encoderY);
-        ctx.arc(encoderX,encoderY,encoderR,theta+i*2*Math.PI/encoderTicks,theta+(i+0.5)*2*Math.PI/encoderTicks)
+        ctx.arc(encoderX,encoderY,encoderR,-theta+i*2*Math.PI/encoderTicks,-theta+(i+0.5)*2*Math.PI/encoderTicks)
         ctx.fill();
     }
     ctx.fillStyle = "white"
