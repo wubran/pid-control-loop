@@ -35,6 +35,9 @@ function onClick(event){
     if((dragStartX-encoderX)*(dragStartX-encoderX)+(dragStartY-encoderY)*(dragStartY-encoderY) < (1.1*encoderR)*(1.1*encoderR)){
         interacting = 1;
     }
+    if((dragStartX-knobX)*(dragStartX-knobX)+(dragStartY-knobY)*(dragStartY-knobY) < (knobR*knobR)){
+        interacting = 2;
+    }
 }
 
 function onRelease(event){
@@ -58,6 +61,10 @@ function onMouseMove(event){
                 console.log(radMag)
                 theta-=0.0005*radMag;
                 return;
+            case 2:
+                let radMag2 = (event.movementY*(mouseX-knobX) - event.movementX*(mouseY-knobY))
+                console.log(radMag2)
+                targetTheta-=0.0005*radMag2;
             case 0:
                 return;
 

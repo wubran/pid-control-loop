@@ -16,6 +16,10 @@ const encoderX = 170;
 const encoderY = 320;
 const encoderR = 100;
 
+const knobX = 170;
+const knobY = 520;
+const knobR = 60;
+
 var theta = -1; // angular position
 var omega = 0; // angular velocity
 var alpha = 0; // angular acceleration
@@ -49,6 +53,7 @@ var sensor1history = [];
 var sensor2history = [];
 var thetaHistory = [];
 var senseThetaHistory = [];
+var targetThetaHistory = [];
 
 function sense(){
     sensor1val = Math.sin(encoderTicks*(theta+sensor1position));
@@ -84,11 +89,13 @@ function update(){
     senseThetaHistory.push(senseTheta);
     sensor1history.push(sensor1val);
     sensor2history.push(sensor2val);
+    targetThetaHistory.push(targetTheta);
     if(thetaHistory.length>historyMax){
         thetaHistory.splice(0,1);
         senseThetaHistory.splice(0,1);
         sensor1history.splice(0,1);
         sensor2history.splice(0,1);
+        targetThetaHistory.splice(0,1);
     }
 }
 
@@ -135,10 +142,18 @@ function drawEncoder(){
 }
 
 function drawKnob(){
-
+    ctx.fillStyle = "lightgray";
+    ctx.beginPath()
+    ctx.arc(knobX,knobY,knobR,0,2*Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = "blue"
+    ctx.beginPath();
+    ctx.moveTo(knobX, knobY);
+    ctx.lineTo(knobX+knobR*Math.cos(targetTheta), knobY-knobR*Math.sin(targetTheta));
+    ctx.stroke();
 }
 
-function graph(x,y,yMin,yMax,yScale,color,...histories){
+function graph(x,y,yMin,yMax,yScale,colors,...histories){
     // axes
     ctx.strokeStyle = "white";
     ctx.beginPath();
@@ -163,10 +178,7 @@ function graph(x,y,yMin,yMax,yScale,color,...histories){
     // graph
     for(let i=0; i<histories.length; i++){
         ctx.beginPath();
-        ctx.strokeStyle = color;
-        if(i==1){
-            ctx.strokeStyle = "lime";
-        }
+        ctx.strokeStyle = colors[i];
         ctx.moveTo(x+graphScaleX,y+yScale*yMin-yScale*histories[i][0])
         for(let j=1; j<histories[i].length; j++){
             ctx.lineTo(x+graphScaleX*j,y+yScale*yMin-yScale*histories[i][j])
@@ -176,8 +188,8 @@ function graph(x,y,yMin,yMax,yScale,color,...histories){
 }
 
 function drawGraphs(){
-    graph(400,150,-1,1,50,"red",sensor1history,sensor2history); //(x,y,yMin,yMax,yScale,color,history,history,history...)
-    graph(400,400,-10,10,10,"red",thetaHistory,senseThetaHistory);
+    graph(400,150,-1,1,50,["red","lime"],sensor1history,sensor2history); //(x,y,yMin,yMax,yScale,color,history,history,history...)
+    graph(400,400,-10,10,10,["red","lime","lightblue"],thetaHistory,senseThetaHistory,targetThetaHistory);
 
 }
 
@@ -203,6 +215,7 @@ function fillscreen(){
     ctx.fillStyle = canvascolor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawEncoder();
+    drawKnob();
     drawSensors();
     drawGraphs();
     if(pause){
