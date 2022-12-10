@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html style="padding:0;margin:0;">
+	<style>
+		canvas{
+			z-index: 1;
+		}
+		.inputHolder{
+			position:absolute;
+			top:10px;
+			left:30px;
+			width: 0px;
+		}
+		.inputRow{
+			width:300px;
+		}
+		p{
+			color:white;
+			display:inline-block;
+		}
+	</style>
+	<body style="padding:0;margin:0;overflow: hidden;">
+		<canvas id="screen"></canvas>
+		<div class="inputHolder">
+			<div class="inputRow">
+				<p>P:</p>
+				<input id="inputP" placeholder="0" inputmode="range" pattern="\d*" max="10" min="-10" step="0.01"></input>
+			</div>
+			<div class="inputRow">
+				<p>I:</p>
+				<input id="inputP" placeholder="0" inputmode="range" pattern="\d*" max="10" min="-10" step="0.01"></input>
+			</div>
+			<div class="inputRow">
+				<p>D:</p>
+				<input id="inputP" placeholder="0" inputmode="range" pattern="\d*" max="10" min="-10" step="0.01"></input>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript" src="events.js"></script>
+</html>
