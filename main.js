@@ -13,7 +13,7 @@ const encoderX = 170;
 const encoderY = 320;
 const encoderR = 100;
 
-var theta = 0; // angular position
+var theta = -1; // angular position
 var omega = 0; // angular velocity
 var alpha = 0; // angular acceleration
 
@@ -106,8 +106,26 @@ function drawEncoder(){
 
     ctx.strokeStyle = "blue"
     ctx.beginPath();
+    ctx.moveTo(encoderX+0.4*encoderR*Math.cos(theta), encoderY-0.4*encoderR*Math.sin(theta));
+    ctx.lineTo(encoderX+0.6*encoderR*Math.cos(theta), encoderY-0.6*encoderR*Math.sin(theta));
+    ctx.stroke();
+
+    ctx.strokeStyle = "orange"
+    ctx.beginPath();
     ctx.moveTo(encoderX,encoderY);
-    ctx.lineTo(encoderX+encoderR*Math.cos(theta)/2, encoderY-encoderR*Math.sin(theta)/2)
+    for(let i=0; Math.abs(i)<Math.abs(theta); i+=0.05*Math.sign(theta-i)){
+        // ctx.lineTo(encoderX+0.4*encoderR*i*Math.cos(i)/(i+1),encoderY-0.4*encoderR*i*Math.sin(i)/(i+1)); // use x/(x+1) asymptote
+        ctx.lineTo(encoderX+0.4*encoderR*i*Math.cos(i)/(theta),encoderY-0.4*encoderR*i*Math.sin(i)/(theta));
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = "lime"
+    ctx.beginPath();
+    ctx.moveTo(encoderX,encoderY);
+    for(let i=0; Math.abs(i)<Math.abs(theta-targetTheta); i+=0.05*Math.sign(theta-i-targetTheta)){
+        // ctx.lineTo(encoderX+0.4*encoderR*i*Math.cos(i)/(i+1),encoderY-0.4*encoderR*i*Math.sin(i)/(i+1)); // use x/(x+1) asymptote
+        ctx.lineTo(encoderX+0.4*encoderR*(i)*Math.cos(i+targetTheta)/(theta-targetTheta),encoderY-0.4*encoderR*(i)*Math.sin(i+targetTheta)/(theta-targetTheta));
+    }
     ctx.stroke();
 }
 
@@ -155,7 +173,7 @@ function graph(x,y,yMin,yMax,yScale,color,...histories){
 function drawGraphs(){
     graph(400,150,-1,1,50,"red",sensor1history,sensor2history); //(x,y,yMin,yMax,yScale,color,history,history,history...)
     graph(400,400,-10,10,10,"red",thetaHistory,senseThetaHistory);
-    
+
 }
 
 function drawSensors(){
