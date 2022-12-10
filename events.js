@@ -41,6 +41,22 @@ function onClick(event){
 }
 
 function onRelease(event){
+    if(click){
+        switch(interacting){
+            case 1:
+                if(thetaHistory.length>5){
+                    omega = (thetaHistory[thetaHistory.length-1]-thetaHistory[thetaHistory.length-5])/4;
+                }
+                break;
+            case 2:
+                // let radMag2 = (event.movementY*(mouseX-knobX) - event.movementX*(mouseY-knobY))
+                // targetTheta-=0.0008*Math.max(Math.min(radMag2,30),-30);
+                break;
+            case 0:
+                break;
+
+        }
+    }
     click = false;
     interacting = 0;
 }
@@ -52,19 +68,19 @@ function onMouseMove(event){
         switch(interacting){
             case 1:
                 // let magDivRadius = (event.movementY*event.movementY+event.movementX*event.movementX)/(event.movementY*(mouseX-encoderX) - event.movementX*(mouseY-encoderY))
-                // console.log(magDivRadius,event.movementY*(mouseX-encoderX),event.movementX*(mouseY-encoderY))
-                // if(isNaN(magDivRadius)){
+                // console.log((event.movementY*event.movementY+event.movementX*event.movementX),(event.movementY*(mouseX-encoderX) - event.movementX*(mouseY-encoderY)))
+                // if(isNaN(magDivRadius) || !isFinite(magDivRadius)){
                 //     return;
                 // }
                 // theta-=magDivRadius;
+
                 let radMag = (event.movementY*(mouseX-encoderX) - event.movementX*(mouseY-encoderY))
-                console.log(radMag)
-                theta-=0.0005*radMag;
+                theta-=0.0004*Math.max(Math.min(radMag,30),-30);
                 return;
             case 2:
                 let radMag2 = (event.movementY*(mouseX-knobX) - event.movementX*(mouseY-knobY))
-                console.log(radMag2)
-                targetTheta-=0.0005*radMag2;
+                targetTheta-=0.0008*Math.max(Math.min(radMag2,30),-30);
+                return;
             case 0:
                 return;
 

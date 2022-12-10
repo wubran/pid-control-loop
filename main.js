@@ -20,7 +20,7 @@ const knobX = 170;
 const knobY = 520;
 const knobR = 60;
 
-var theta = -1; // angular position
+var theta = 0; // angular position
 var omega = 0; // angular velocity
 var alpha = 0; // angular acceleration
 
@@ -28,7 +28,7 @@ var senseTheta = 0;
 var senseOmega = 0;
 var senseAlpha = 0;
 
-var targetTheta = 2;
+var targetTheta = 0;
 var targetOmega = 0;
 var targetAlpha = 0;
 
@@ -153,7 +153,17 @@ function drawKnob(){
     ctx.stroke();
 }
 
-function graph(x,y,yMin,yMax,yScale,colors,...histories){
+function graph(x,y,height,colors,...histories){ //really should have made a "history class"
+    let yMin = histories[0][0];
+    let yMax = histories[0][0];
+    for(let history of histories){
+        yMin = Math.min(yMin,...history);
+        yMax = Math.max(yMax,...history);
+    }
+    let yScale = 1
+    if(yMax-yMin != 0){
+        yScale = height/(yMax-yMin);
+    }
     // axes
     ctx.strokeStyle = "white";
     ctx.beginPath();
@@ -167,12 +177,13 @@ function graph(x,y,yMin,yMax,yScale,colors,...histories){
     let ticks = 5;
     ctx.fillStyle = "white";
     ctx.textAlign = "right";
+    ctx.font = 12 + "px Arial";
     for(let i=0; i<ticks+1; i++){
         ctx.beginPath();
         ctx.moveTo(x-5,y-i*yScale*(yMax-yMin)/ticks);
         ctx.lineTo(x+5,y-i*yScale*(yMax-yMin)/ticks);
         ctx.stroke();
-        ctx.fillText(Math.round(100*(i*(yMax-yMin)/ticks+yMin))/100,x-10,y-i*yScale*(yMax-yMin)/ticks);
+        ctx.fillText(Math.round(100*(i*(yMax-yMin)/ticks+yMin))/100,x-10,y-i*yScale*(yMax-yMin)/ticks+4);
     }
 
     // graph
@@ -188,8 +199,8 @@ function graph(x,y,yMin,yMax,yScale,colors,...histories){
 }
 
 function drawGraphs(){
-    graph(400,150,-1,1,50,["red","lime"],sensor1history,sensor2history); //(x,y,yMin,yMax,yScale,color,history,history,history...)
-    graph(400,400,-10,10,10,["red","lime","lightblue"],thetaHistory,senseThetaHistory,targetThetaHistory);
+    graph(400,120,80,["red","lime"],sensor1history,sensor2history); //(x,y,yMin,yMax,yScale,color,history,history,history...)
+    graph(400,330,150,["red","lime","lightblue"],thetaHistory,senseThetaHistory,targetThetaHistory);
 
 }
 
@@ -228,12 +239,11 @@ function fillscreen(){
 
 let oldTime = 0;
 function loop(timestamp){
+    fillscreen();
     if(!pause){
         sense();
         doCalcs();
         update();
-
-        fillscreen();
     }
     oldTime = timestamp;
     requestAnimationFrame(loop)
