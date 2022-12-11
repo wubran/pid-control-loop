@@ -22,6 +22,7 @@ const knobR = 60;
 
 var theta = 0; // angular position
 var omega = 0; // angular velocity
+var torque = 0;
 var alpha = 0; // angular acceleration
 
 var senseTheta = 0;
@@ -52,6 +53,8 @@ var sensor1history = [];
 var sensor2history = [];
 var thetaHistory = [];
 var omegaHistory = [];
+var torqueHistory = [];
+var alphaHistory = [];
 var senseThetaHistory = [];
 var errorThetaHistory = [];
 var errorOmegaHistory = [];
@@ -110,7 +113,7 @@ function dee(){
 }
 
 function doCalcs(){
-    let torque = pidGain*(pee() + eye() + dee());
+    torque = pidGain*(pee() + eye() + dee());
     alpha = Math.max(Math.min(torque,maxTorque),-maxTorque)/inertia;
 }
 
@@ -125,7 +128,9 @@ function update(){
         theta += omega;
     }
     thetaHistory.push(theta);
-    omegaHistory.push(30*omega)
+    omegaHistory.push(30*omega);
+    torqueHistory.push(torque);
+    alphaHistory.push(inertia*alpha);
     senseThetaHistory.push(senseTheta);
 
     errorThetaHistory.push(errorTheta);
@@ -140,6 +145,8 @@ function update(){
     if(thetaHistory.length>historyMax){
         thetaHistory.splice(0,1);
         omegaHistory.splice(0,1);
+        torqueHistory.splice(0,1);
+        alphaHistory.splice(0,1);
         senseThetaHistory.splice(0,1);
         errorThetaHistory.splice(0,1);
         errorOmegaHistory.splice(0,1);
@@ -256,7 +263,9 @@ function graph(x,y,height,labels,colors,histories){ //really should have made a 
 function drawGraphs(){
     graph(400,120,80,["s1","s2"],["lime","fuchsia"],[sensor1history,sensor2history]); //(x,y,yMin,yMax,yScale,color,history,history,history...)
     graph(400,270,100,["theta (true)", "theta (sensor)", "target"],["red","lime","lightblue","fuchsia"],[thetaHistory,senseThetaHistory,targetThetaHistory]);
-    graph(400,450,120,["P","D","I"],["fuchsia","yellow","orange"],[errorThetaHistory,errorOmegaHistory,errorAbsementHistory]);
+    graph(400,440,120,["P","D","I"],["fuchsia","yellow","lime"],[errorThetaHistory,errorOmegaHistory,errorAbsementHistory]);
+    // graph(400,600,120,["torque","alpha"],["lime","fuchsia"],[torqueHistory,alphaHistory]);
+    graph(400,620,120,["alpha"],["fuchsia"],[alphaHistory]);
 
 }
 
