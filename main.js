@@ -17,7 +17,7 @@ const encoderY = 320;
 const encoderR = 100;
 
 const knobX = 170;
-const knobY = 520;
+const knobY = 560;
 const knobR = 60;
 
 var theta = 0; // angular position
@@ -26,6 +26,7 @@ var torque = 0;
 var alpha = 0; // angular acceleration
 
 var senseTheta = 0;
+var errorTheta = 0;
 var errorOmega = 0;
 var errorAbsement = 0;
 var senseAlpha = 0;
@@ -35,7 +36,7 @@ var targetOmega = 0;
 var targetAlpha = 0;
 
 var pGain = 5;
-var iGain = 0;
+var iGain = 0.05;
 var dGain = 100;
 var pidGain = 4;
 
@@ -158,6 +159,55 @@ function update(){
 }
 
 function drawEncoder(){
+
+    ctx.fillStyle = "fuchsia"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    let p = -pGain*errorTheta;
+    if(p>=0){
+        ctx.arc(encoderX,encoderY,1.5*encoderR,Math.PI,Math.PI+2*Math.PI*p/(Math.abs(p)+5));
+    }else{
+        ctx.arc(encoderX,encoderY,1.5*encoderR,Math.PI+2*Math.PI*p/(Math.abs(p)+5),Math.PI);
+    }
+    ctx.fill();
+    ctx.fillStyle = "black"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    ctx.arc(encoderX,encoderY,1.42*encoderR,0,2*Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = "lime"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    let i = -iGain*errorAbsement;
+    if(i>=0){
+        ctx.arc(encoderX,encoderY,1.4*encoderR,Math.PI,Math.PI+2*Math.PI*i/(Math.abs(i)+5));
+    }else{
+        ctx.arc(encoderX,encoderY,1.4*encoderR,Math.PI+2*Math.PI*i/(Math.abs(i)+5),Math.PI);
+    }
+    ctx.fill();
+    ctx.fillStyle = "black"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    ctx.arc(encoderX,encoderY,1.32*encoderR,0,2*Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = "yellow"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    let d = -dGain*errorOmega;
+    if(d>=0){
+        ctx.arc(encoderX,encoderY,1.2*encoderR,Math.PI,Math.PI+2*Math.PI*d/(Math.abs(d)+5));
+    }else{
+        ctx.arc(encoderX,encoderY,1.2*encoderR,Math.PI+2*Math.PI*d/(Math.abs(d)+5),Math.PI);
+    }
+    ctx.fill();
+    ctx.fillStyle = "black"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    ctx.arc(encoderX,encoderY,1.12*encoderR,0,2*Math.PI);
+    ctx.fill();
+
     ctx.fillStyle = "white"
     ctx.beginPath()
     ctx.arc(encoderX,encoderY,1.1*encoderR,0,2*Math.PI);
