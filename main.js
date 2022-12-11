@@ -36,9 +36,7 @@ var targetTheta = 0;
 var targetOmega = 0;
 var targetAlpha = 0;
 
-var pGain = 5;
-var iGain = 0.05;
-var dGain = 100;
+var pidGains = [5,0.05,100];
 var pidGain = 4;
 
 var encoderTicks = 18;
@@ -68,7 +66,7 @@ var absementLag = 200;
 
 var maxTorque = 10;
 var fviscous = 0.01;
-var fdynamic = 0.001;
+var fdynamic = 0.01;
 var fstatic = 0.000;
 
 var inertia = 2000;
@@ -105,15 +103,15 @@ function sense(){
 }
 
 function pee(){
-    return errorTheta * pGain;
+    return errorTheta * pidGains[0];
 }
 
 function eye(){
-    return errorAbsement * iGain;
+    return errorAbsement * pidGains[1];
 }
 
 function dee(){
-    return errorOmega * dGain;
+    return errorOmega * pidGains[2];
 }
 
 function doCalcs(){
@@ -168,7 +166,7 @@ function drawEncoder(){
     ctx.fillStyle = "fuchsia"
     ctx.beginPath()
     ctx.moveTo(encoderX, encoderY)
-    let p = -pGain*errorTheta;
+    let p = -pidGains[0]*errorTheta;
     if(p>=0){
         ctx.arc(encoderX,encoderY,1.4*encoderR,Math.PI,Math.PI+2*Math.PI*p/(Math.abs(p)+stretch));
     }else{
@@ -184,7 +182,7 @@ function drawEncoder(){
     ctx.fillStyle = "lime"
     ctx.beginPath()
     ctx.moveTo(encoderX, encoderY)
-    let i = -iGain*errorAbsement;
+    let i = -pidGains[1]*errorAbsement;
     if(i>=0){
         ctx.arc(encoderX,encoderY,1.3*encoderR,Math.PI,Math.PI+2*Math.PI*i/(Math.abs(i)+stretch));
     }else{
@@ -200,7 +198,7 @@ function drawEncoder(){
     ctx.fillStyle = "yellow"
     ctx.beginPath()
     ctx.moveTo(encoderX, encoderY)
-    let d = -dGain*errorOmega;
+    let d = -pidGains[2]*errorOmega;
     if(d>=0){
         ctx.arc(encoderX,encoderY,1.2*encoderR,Math.PI,Math.PI+2*Math.PI*d/(Math.abs(d)+stretch));
     }else{

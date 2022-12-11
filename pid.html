@@ -17,7 +17,7 @@
 			color:white;
 			display:inline-block;
 		}
-		.textbox{
+		.inbox{
 			width:40px;
 		}
 		.slider{
@@ -29,18 +29,18 @@
 		<div class="inputHolder">
 			<div class="inputRow">
 				<p>P:</p>
-				<input class="textbox" id="textP" placeholder="0" inputmode="decimal" pattern="\d*" max="10" min="-10" step="0.01"></input>
-				<input class="slider" id="slideP" placeholder="0" inputmode="decimal" pattern="\d*" max="10" min="-10" step="0.01" type="range"></input>
+				<input class="inbox" id="textP" value="5" inputmode="decimal" pattern="\d*" max="50" min="-10" step="0.1"></input>
+				<input class="slider" id="slideP" value="5" inputmode="decimal" pattern="\d*" max="50" min="-10" step="0.1" type="range"></input>
 			</div>
 			<div class="inputRow">
 				<p>I:</p>
-				<input class="textbox" id="textI" placeholder="0" inputmode="decimal" pattern="\d*" max="10" min="-10" step="0.01"></input>
-				<input class="slider" id="slideI" placeholder="0" inputmode="decimal" pattern="\d*" max="10" min="-10" step="0.01" type="range"></input>
+				<input class="inbox" id="textI" value="0.05" inputmode="decimal" pattern="\d*" max="20" min="-10" step="0.005"></input>
+				<input class="slider" id="slideI" value="0.05" inputmode="decimal" pattern="\d*" max="20" min="-10" step="0.005" type="range"></input>
 			</div>
 			<div class="inputRow">
 				<p>D:</p>
-				<input class="textbox" id="textD" placeholder="0" inputmode="decimal" pattern="\d*" max="10" min="-10" step="0.01"></input>
-				<input class="slider" id="slideD" placeholder="0" inputmode="decimal" pattern="\d*" max="10" min="-10" step="0.01" type="range"></input>
+				<input class="inbox" id="textD" value="100" inputmode="decimal" pattern="\d*" max="300" min="-100" step="0.1"></input>
+				<input class="slider" id="slideD" value="100" inputmode="decimal" pattern="\d*" max="300" min="-100" step="0.1" type="range"></input>
 			</div>
 		</div>
 	</body>

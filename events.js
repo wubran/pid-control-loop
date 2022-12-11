@@ -1,4 +1,19 @@
 var canvas = document.getElementById('screen');
+let sliders = document.getElementsByClassName("slider");
+let inboxes = document.getElementsByClassName("inbox");
+
+for(let i=0; i<3; i++){
+    sliders[i].oninput = function() {
+        let numVal = parseFloat(this.value);
+        pidGains[i] = numVal;
+        inboxes[i].value = numVal;
+    }
+    inboxes[i].oninput = function() {
+        let numVal = parseFloat(this.value);
+        pidGains[i] = numVal;
+        sliders[i].value = numVal;
+    }
+}
 
 canvasResize();
 
