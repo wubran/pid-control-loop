@@ -25,22 +25,21 @@ var omega = 0; // angular velocity
 var alpha = 0; // angular acceleration
 
 var senseTheta = 0;
-var senseOmega = 0;
+var errorOmega = 0;
+var errorAbsement = 0;
 var senseAlpha = 0;
 
 var targetTheta = 0;
 var targetOmega = 0;
 var targetAlpha = 0;
 
-var errorP = 0;
-var errorI = 0;
-var errorD = 0;
-
-var pGain = 1;
-var iGain = 1;
-var dGain = 1;
+var pGain = 5;
+var iGain = 0;
+var dGain = 100;
+var pidGain = 4;
 
 var encoderTicks = 18;
+var encoderRes = 4;
 
 const sensor1position = 0;
 var sensor2position = (2*Math.PI/encoderTicks)/4;
@@ -52,47 +51,99 @@ var graphScaleX = 500/historyMax;
 var sensor1history = [];
 var sensor2history = [];
 var thetaHistory = [];
+var omegaHistory = [];
 var senseThetaHistory = [];
+var errorThetaHistory = [];
+var errorOmegaHistory = [];
+var errorAbsementHistory = [];
 var targetThetaHistory = [];
 
-function sense(){
-    sensor1val = Math.sin(encoderTicks*(theta+sensor1position));
-    sensor2val = Math.sin(encoderTicks*(theta+sensor2position));
+var omegaLag = 5;
+var absementLag = 200;
 
-    senseTheta = 2*Math.PI*Math.floor(encoderTicks*theta/(2*Math.PI))/encoderTicks;
-    errorP = targetTheta-senseTheta;
+var maxTorque = 10;
+var fviscous = 0.01;
+var fdynamic = 0.001;
+var fstatic = 0.000;
+
+var inertia = 2000;
+// var maxTheta = 10;
+
+function sense(){
+    sensor1val = Math.sin(encoderTicks*(theta-sensor1position));
+    sensor2val = Math.sin(encoderTicks*(theta-sensor2position));
+
+    senseTheta = 2*Math.PI*Math.floor(encoderRes*encoderTicks*theta/(2*Math.PI))/(encoderRes*encoderTicks);
+    errorTheta = targetTheta-senseTheta;
+    if(senseThetaHistory.length>=omegaLag+1){
+        // errorOmega = (errorTheta-errorThetaHistory[errorThetaHistory.length-omegaLag])/omegaLag;
+        // errorOmega = errorThetaHistory.slice(-omegaLag).reduce((old, now, index, me)=> old+(now-errorThetaHistory[index+errorThetaHistory.length-omegaLag-1])/(me.length), 0);
+        // errorOmega = errorThetaHistory.slice(-omegaLag).reduce((old, now, index, me)=> old+(now-errorThetaHistory[index+errorThetaHistory.length-omegaLag-1])/(me.length-index+omegaLag), 0);
+        // errorOmega = -omega;
+        // errorOmega = -(senseTheta-thetaHistory[thetaHistory.length-omegaLag])/omegaLag
+        errorOmega = -thetaHistory.slice(-omegaLag).reduce((old, now, index, me)=> old+(now-thetaHistory[index+thetaHistory.length-omegaLag-1])/(me.length), 0);
+    }
+    // errorAbsement = ((absementLag)*errorAbsement + errorTheta)/absementLag; //normal-ish average
+    // errorAbsement += Math.sign(errorTheta); //normal-ish average
+    // errorAbsement = (Math.sqrt(Math.abs(absementLag*absementLag*errorAbsement*errorTheta*1.1+1.1)))/absementLag; // not quite geo average
+    // errorAbsement = errorAbsement*0.998 + errorTheta/500;
+    // errorAbsement = ((absementLag)*(errorAbsement) + Math.sign(errorTheta)*Math.abs(errorTheta)**0.5)/absementLag;
+    // errorAbsement = Math.sign((absementLag*errorAbsement)*Math.abs(absementLag*errorAbsement) + errorTheta*Math.abs(errorTheta))*Math.sqrt(Math.abs((absementLag*errorAbsement)*Math.abs(absementLag*errorAbsement) + errorTheta*Math.abs(errorTheta)))/absementLag;
+    // errorAbsement = errorThetaHistory.reduce((now, old, ind)=> now+old/(errorThetaHistory.length-ind), 0)/(1.13*Math.log(errorThetaHistory.length+1));
+
+    errorAbsement = 2*errorThetaHistory.slice(-absementLag).reduce((now, old)=> now+old, 0)/(absementLag+1);
+    // errorAbsement = Math.sign(errorTheta)*errorThetaHistory.slice(-4).reduce((now, old)=> now*old/5, 1);
+    // errorAbsement = 1*Math.sign(errorTheta)
+    // console.log(errorAbsement)
 }
 
 function pee(){
-    return errorP * pGain;
+    return errorTheta * pGain;
 }
 
 function eye(){
-    return 0;
+    return errorAbsement * iGain;
 }
 
 function dee(){
-    return 0;
+    return errorOmega * dGain;
 }
 
 function doCalcs(){
-    let torque = pee() + eye() + dee();
-    alpha = 0.0005*torque;
+    let torque = pidGain*(pee() + eye() + dee());
+    alpha = Math.max(Math.min(torque,maxTorque),-maxTorque)/inertia;
 }
 
 function update(){
     if(interacting!=1){
-        omega += alpha;
+        omega-=fviscous*omega;
+        omega-=fdynamic*Math.sign(omega)*Math.min(1,Math.abs(omega));
+        if(Math.abs(omega+=alpha) <= fstatic){
+            omega = 0;
+        }
+        omega+= alpha;
         theta += omega;
     }
     thetaHistory.push(theta);
+    omegaHistory.push(30*omega)
     senseThetaHistory.push(senseTheta);
+
+    errorThetaHistory.push(errorTheta);
+    errorOmegaHistory.push(30*errorOmega);
+    errorAbsementHistory.push(errorAbsement);
+
     sensor1history.push(sensor1val);
     sensor2history.push(sensor2val);
+
     targetThetaHistory.push(targetTheta);
+
     if(thetaHistory.length>historyMax){
         thetaHistory.splice(0,1);
+        omegaHistory.splice(0,1);
         senseThetaHistory.splice(0,1);
+        errorThetaHistory.splice(0,1);
+        errorOmegaHistory.splice(0,1);
+        errorAbsementHistory.splice(0,1);
         sensor1history.splice(0,1);
         sensor2history.splice(0,1);
         targetThetaHistory.splice(0,1);
@@ -153,7 +204,7 @@ function drawKnob(){
     ctx.stroke();
 }
 
-function graph(x,y,height,colors,...histories){ //really should have made a "history class"
+function graph(x,y,height,labels,colors,histories){ //really should have made a "history class"
     let yMin = histories[0][0];
     let yMax = histories[0][0];
     for(let history of histories){
@@ -195,12 +246,17 @@ function graph(x,y,height,colors,...histories){ //really should have made a "his
             ctx.lineTo(x+graphScaleX*j,y+yScale*yMin-yScale*histories[i][j])
         }
         ctx.stroke();
+
+        ctx.fillStyle = colors[i];
+        ctx.textAlign = "left"
+        ctx.fillText(labels[i],x+graphScaleX*(histories[i].length-1)+4,y+yScale*yMin-yScale*histories[i][histories[i].length-1]+3);
     }
 }
 
 function drawGraphs(){
-    graph(400,120,80,["red","lime"],sensor1history,sensor2history); //(x,y,yMin,yMax,yScale,color,history,history,history...)
-    graph(400,330,150,["red","lime","lightblue"],thetaHistory,senseThetaHistory,targetThetaHistory);
+    graph(400,120,80,["s1","s2"],["lime","fuchsia"],[sensor1history,sensor2history]); //(x,y,yMin,yMax,yScale,color,history,history,history...)
+    graph(400,270,100,["theta (true)", "theta (sensor)", "target"],["red","lime","lightblue","fuchsia"],[thetaHistory,senseThetaHistory,targetThetaHistory]);
+    graph(400,450,120,["P","D","I"],["fuchsia","yellow","orange"],[errorThetaHistory,errorOmegaHistory,errorAbsementHistory]);
 
 }
 
