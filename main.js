@@ -11,6 +11,7 @@ var dragStartX = 0;
 var dragStartY = 0;
 var interacting = 0; // 1 is encoder
 var pause = false;
+var wheelSensitivity = 20;
 
 const encoderX = 170;
 const encoderY = 320;
@@ -71,6 +72,8 @@ var fdynamic = 0.001;
 var fstatic = 0.000;
 
 var inertia = 2000;
+
+var frameTime = 1000/60;
 // var maxTheta = 10;
 
 function sense(){
@@ -160,30 +163,16 @@ function update(){
 
 function drawEncoder(){
 
+    let stretch = 50;
+
     ctx.fillStyle = "fuchsia"
     ctx.beginPath()
     ctx.moveTo(encoderX, encoderY)
     let p = -pGain*errorTheta;
     if(p>=0){
-        ctx.arc(encoderX,encoderY,1.5*encoderR,Math.PI,Math.PI+2*Math.PI*p/(Math.abs(p)+5));
+        ctx.arc(encoderX,encoderY,1.4*encoderR,Math.PI,Math.PI+2*Math.PI*p/(Math.abs(p)+stretch));
     }else{
-        ctx.arc(encoderX,encoderY,1.5*encoderR,Math.PI+2*Math.PI*p/(Math.abs(p)+5),Math.PI);
-    }
-    ctx.fill();
-    ctx.fillStyle = "black"
-    ctx.beginPath()
-    ctx.moveTo(encoderX, encoderY)
-    ctx.arc(encoderX,encoderY,1.42*encoderR,0,2*Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = "lime"
-    ctx.beginPath()
-    ctx.moveTo(encoderX, encoderY)
-    let i = -iGain*errorAbsement;
-    if(i>=0){
-        ctx.arc(encoderX,encoderY,1.4*encoderR,Math.PI,Math.PI+2*Math.PI*i/(Math.abs(i)+5));
-    }else{
-        ctx.arc(encoderX,encoderY,1.4*encoderR,Math.PI+2*Math.PI*i/(Math.abs(i)+5),Math.PI);
+        ctx.arc(encoderX,encoderY,1.4*encoderR,Math.PI+2*Math.PI*p/(Math.abs(p)+stretch),Math.PI);
     }
     ctx.fill();
     ctx.fillStyle = "black"
@@ -192,14 +181,30 @@ function drawEncoder(){
     ctx.arc(encoderX,encoderY,1.32*encoderR,0,2*Math.PI);
     ctx.fill();
 
+    ctx.fillStyle = "lime"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    let i = -iGain*errorAbsement;
+    if(i>=0){
+        ctx.arc(encoderX,encoderY,1.3*encoderR,Math.PI,Math.PI+2*Math.PI*i/(Math.abs(i)+stretch));
+    }else{
+        ctx.arc(encoderX,encoderY,1.3*encoderR,Math.PI+2*Math.PI*i/(Math.abs(i)+stretch),Math.PI);
+    }
+    ctx.fill();
+    ctx.fillStyle = "black"
+    ctx.beginPath()
+    ctx.moveTo(encoderX, encoderY)
+    ctx.arc(encoderX,encoderY,1.22*encoderR,0,2*Math.PI);
+    ctx.fill();
+
     ctx.fillStyle = "yellow"
     ctx.beginPath()
     ctx.moveTo(encoderX, encoderY)
     let d = -dGain*errorOmega;
     if(d>=0){
-        ctx.arc(encoderX,encoderY,1.2*encoderR,Math.PI,Math.PI+2*Math.PI*d/(Math.abs(d)+5));
+        ctx.arc(encoderX,encoderY,1.2*encoderR,Math.PI,Math.PI+2*Math.PI*d/(Math.abs(d)+stretch));
     }else{
-        ctx.arc(encoderX,encoderY,1.2*encoderR,Math.PI+2*Math.PI*d/(Math.abs(d)+5),Math.PI);
+        ctx.arc(encoderX,encoderY,1.2*encoderR,Math.PI+2*Math.PI*d/(Math.abs(d)+stretch),Math.PI);
     }
     ctx.fill();
     ctx.fillStyle = "black"
@@ -360,6 +365,8 @@ function loop(timestamp){
         doCalcs();
         update();
     }
+    // console.log(frameTime)
+    frameTime = timestamp-oldTime;
     oldTime = timestamp;
     requestAnimationFrame(loop)
 }

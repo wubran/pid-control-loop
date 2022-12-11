@@ -45,7 +45,7 @@ function onRelease(event){
         switch(interacting){
             case 1:
                 if(thetaHistory.length>5){
-                    omega = (thetaHistory[thetaHistory.length-1]-thetaHistory[thetaHistory.length-5])/4;
+                    omega = (wheelSensitivity/10)*(thetaHistory[thetaHistory.length-1]-thetaHistory[thetaHistory.length-5])/4;
                 }
                 break;
             case 2:
@@ -75,11 +75,12 @@ function onMouseMove(event){
                 // theta-=magDivRadius;
 
                 let radMag = (event.movementY*(mouseX-encoderX) - event.movementX*(mouseY-encoderY))
-                theta-=0.0004*Math.max(Math.min(radMag,30),-30);
+                theta-=wheelSensitivity*0.0004*Math.max(Math.min(radMag,30),-30)*(frameTime/30);
+                // console.log(event.movementX,event.movementY)
                 return;
             case 2:
                 let radMag2 = (event.movementY*(mouseX-knobX) - event.movementX*(mouseY-knobY))
-                targetTheta-=0.0008*Math.max(Math.min(radMag2,30),-30);
+                targetTheta-=wheelSensitivity*0.0004*Math.max(Math.min(radMag2,30),-30);
                 return;
             case 0:
                 return;
